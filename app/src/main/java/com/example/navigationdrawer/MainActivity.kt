@@ -1,19 +1,26 @@
 package com.example.navigationdrawer
 
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
+import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.*
 import com.example.navigationdrawer.databinding.ActivityMainBinding
 import com.google.android.material.navigation.NavigationView
 
+private const val TAG = "MainActivity"
+
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var appBarConfiguration: AppBarConfiguration
+
+    // I find that it's hard for menu to find navController,
+    // so keep it in the property.
+    private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,13 +29,15 @@ class MainActivity : AppCompatActivity() {
         // Inflate layout
         setContentView(R.layout.activity_main)
 
-        // Set action bar
+        // Set action bar with toolbar
         setSupportActionBar(findViewById(R.id.toolbar))
 
+        // Init navController with navHostFragment
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        val navController = navHostFragment.navController
+        navController = navHostFragment.navController
 
+        // Init appBarConfiguration, set topLevelDestination, make change between hamburger button and up button.
         appBarConfiguration = AppBarConfiguration(
             // these primary destinations will not display an up arrow when they are selected as they are at the top level.
             setOf(
@@ -43,6 +52,7 @@ class MainActivity : AppCompatActivity() {
 
         // This sets up the app bar with the navigation graph so that
         // any changes that are made to the destinations are reflected in the app bar
+        // Such that action bar know how to display label and hamburger button
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         // specifies the item within the navigation drawer that
@@ -53,7 +63,6 @@ class MainActivity : AppCompatActivity() {
     //  handles pressing the up button for the secondary destination,
     //  ensuring that it goes back to its parent primary destination
     override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
@@ -65,7 +74,7 @@ class MainActivity : AppCompatActivity() {
 
     // handles what to do when the item is selected
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment)
+        Log.d(TAG, "navController is ${navController.toString()}")
         // navigate to the destination within the navigation graph
         return item.onNavDestinationSelected(navController)
     }
